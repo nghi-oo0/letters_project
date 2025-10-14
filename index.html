@@ -6,17 +6,32 @@
   </head>
   <body>
   	<canvas id="canvas"></canvas>
-  	<dic id="text"></text>
+  	<div id="text"></div>
   	<script>
   	  // canvas set up
   	  const canvas = document.getElementById("canvas");
   	  const cntx = canvas.getContext("2d");
 
   	  // screen set up
-  	  let width = canvas.width = window.innerWidth;
-	  let height = canvas.height = window.innerHeight;
-	  let screenCenter = { x: width / 2, y: height / 2 };
+  	  let screenWidth = canvas.width = window.innerWidth;
+	  let screenWeight = canvas.height = window.innerHeight;
+	  let screenCenter = { x: screenWidth / 2, y: screenWeight / 2 };
 
+	  // particles collection
+      let particles = [];
+
+      // blackhole set up
+      let blackHoleSize = 20;
+
+      // Particle class
+      class Particle {
+      	constructor() {
+      		this.appear()
+      	}
+      	appear() {
+
+      	}
+      }
   	</script>
   </body>
 </html>
