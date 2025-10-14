@@ -10,12 +10,12 @@
   	<script>
   	  // canvas set up
   	  const canvas = document.getElementById("canvas");
-  	  const cntx = canvas.getContext("2d");
+  	  const ctx = canvas.getContext("2d"); // polar coordinate system
 
   	  // screen set up
   	  let screenWidth = canvas.width = window.innerWidth;
-	  let screenWeight = canvas.height = window.innerHeight;
-	  let screenCenter = { x: screenWidth / 2, y: screenWeight / 2 };
+	  let screenHeight = canvas.height = window.innerHeight;
+	  let screenCenter = { x: screenWidth / 2, y: screenHeight / 2 };
 
 	  // particles collection
       let particles = [];
@@ -29,9 +29,44 @@
       		this.appear()
       	}
       	appear() {
-
+      	  const angle = Math.random() * Math.PI * 2; // angle in the polar coordinate
+      	  const rad = Math.max(screenWidth, screenHeight) * 0.6;
+      	  this.x = screenCenter.x + Math.cos(angle) * rad; // convert to x: cartesian
+          this.y = screenCenter.y + Math.sin(angle) * rad; // convert to y: cartesian
+          this.vx = (Math.random() - 0.5) * 0.8; // velocity x
+    	  this.vy = (Math.random() - 0.5) * 0.8; // velocity y
+    	  this.size = 1 + Math.random() * 2;
       	}
+      	update() {
+      	  this.x += this.vx;
+          this.y += this.vy;
+      	}
+      	draw() {
+    	  ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    	  ctx.fillStyle = "black";
+          ctx.fill();
+  		}
+
       }
+
+      // Initial particles
+      for (let i = 0; i < 9000; i++) {
+        particles.push(new Particle());
+	  }
+
+	  function animate() {
+	  	ctx.fillStyle = "rgba(255,255,255,0.25)";
+  		ctx.fillRect(0, 0, screenWidth, screenHeight);
+
+	  	particles.forEach(p => {
+    	p.update();
+    	p.draw();
+  	    });
+
+  	    requestAnimationFrame(animate);
+	  }
+	animate();
   	</script>
   </body>
 </html>
