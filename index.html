@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>‎</title>
     <style>
-    	html, body { margin:0; padding:0; overflow:hidden; background:white; }
+    	html, body { margin:0; padding:0; overflow:hidden; background:black; }
     	canvas { display:block; }
     </style>
   </head>
@@ -77,7 +77,7 @@
       	draw() {
     	    ctx.beginPath();
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    	    ctx.fillStyle = "black";
+    	    ctx.fillStyle = "white";
           ctx.fill();
   		  }
 
@@ -131,7 +131,7 @@
 
 	  function animate() {
       if (!exploding) {
-  	  	ctx.fillStyle = "rgba(255,255,255,0.25)"; // slightly transparent to have trails
+  	  	ctx.fillStyle = "rgba(0,0,0,0.25)"; // slightly transparent to have trails
     		ctx.fillRect(0, 0, screenWidth, screenHeight);
 
   	  	particles.forEach(p => {
@@ -145,7 +145,7 @@
     		}
 
     	  drawBlackHole();
-        
+
       } else {
         explodeTrigger();
       }
