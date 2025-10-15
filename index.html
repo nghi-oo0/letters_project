@@ -18,11 +18,12 @@
 
   	  // screen set up
   	  let screenWidth = canvas.width = window.innerWidth;
-	  let screenHeight = canvas.height = window.innerHeight;
-	  let screenCenter = { x: screenWidth / 2, y: screenHeight / 2 };
+	    let screenHeight = canvas.height = window.innerHeight;
+	    let screenCenter = { x: screenWidth / 2, y: screenHeight / 2 };
 
-	  // particles collection
+	    // particles collection
       let particles = [];
+      let particlesPerFrame = 10;
 
       // blackhole set up
       let blackHoleSize = 20;
@@ -38,70 +39,81 @@
       	  this.x = screenCenter.x + Math.cos(angle) * rad; // convert to x: cartesian
           this.y = screenCenter.y + Math.sin(angle) * rad; // convert to y: cartesian
           this.vx = (Math.random() - 0.5) * 0.8; // velocity x
-    	  this.vy = (Math.random() - 0.5) * 0.8; // velocity y
-    	  this.size = 1 + Math.random() * 2;
+    	    this.vy = (Math.random() - 0.5) * 0.8; // velocity y
+    	    this.size = 1 + Math.random() * 2;
       	}
       	update() {
       	  // Calculate distance between the particle and the screen's center
       	  const dx = screenCenter.x - this.x;
    	      const dy = screenCenter.y - this.y;
-    	  const disSq = dx * dx + dy * dy;
-    	  const dis = Math.sqrt(disSq);
+    	    const disSq = dx * dx + dy * dy;
+    	    const dis = Math.sqrt(disSq);
 
-    	  // Reset the particle when entering the black hole event horizon
-    	  if (dis < blackHoleSize * 1.5) {
+    	    // Reset the particle when entering the black hole event horizon
+          const eventHorizon = blackHoleSize + 20;
+    	    if (dis < eventHorizon) {
       	    this.appear();
       	    return;
       	  }
 
       	  // Black hole's gravity force
       	  const force = (blackHoleSize * 150) / (disSq + 1000);
-    	  this.vx += force * (dx / dis);
+    	    this.vx += force * (dx / dis);
           this.vy += force * (dy / dis);
 
           // slow down to avoid overshooting
           if (dis < blackHoleSize * 3) {
-    	  	this.vx *= 0.85;
-    		this.vy *= 0.85;
-  		  }
+    	  	this.vx *= 0.97;
+    		  this.vy *= 0.97;
+  		    }
 
           // update particle's location
       	  this.x += this.vx;
           this.y += this.vy; 
       	}
       	draw() {
-    	  ctx.beginPath();
+    	    ctx.beginPath();
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    	  ctx.fillStyle = "black";
+    	    ctx.fillStyle = "black";
           ctx.fill();
-  		}
+  		  }
 
       }
 
-      function drawBlackHole() {
-  	    ctx.beginPath();
+    function drawBlackHole() {
+  	  ctx.beginPath();
 	    ctx.arc(screenCenter.x, screenCenter.y, blackHoleSize, 0, Math.PI * 2);
 	    ctx.fillStyle = "black";
-        ctx.fill();
+      ctx.fill();
 	  }
+
+    function handleInput(e) {
+      if (e.key === 'Backspace') {
+        blackHoleSize = Math.max(20, blackHoleSize - 8);
+      } else if (e.key.length === 1) {
+        blackHoleSize += 8;
+      }
+    }
+
+    window.addEventListener("keydown", handleInput);
 
 	  function animate() {
 	  	ctx.fillStyle = "rgba(255,255,255,0.25)"; // slightly transparent to have trails
   		ctx.fillRect(0, 0, screenWidth, screenHeight);
 
 	  	particles.forEach(p => {
-    	p.update();
-    	p.draw();
-  	    });
+    	  p.update();
+    	  p.draw();
+  	  });
 
 	  	// Constantly generate particles
-  		for (let i = 0; i < 10; i++) { 
-    	  	particles.push(new Particle());
+  		for (let i = 0; i < particlesPerFrame; i++) { 
+    	  particles.push(new Particle());
   		}
 
-  	    drawBlackHole();
+  	  drawBlackHole();
 
-  	    requestAnimationFrame(animate);
+  	  requestAnimationFrame(animate);
 	  }
 	animate();
   	</script>
