@@ -17,9 +17,9 @@
   	  const ctx = canvas.getContext("2d"); // polar coordinate system
 
   	  // screen set up
-  	  let screenWidth = canvas.width = window.innerWidth;
-	    let screenHeight = canvas.height = window.innerHeight;
-	    let screenCenter = { x: screenWidth / 2, y: screenHeight / 2 };
+  	  let windowWidth = canvas.width = window.innerWidth;
+	    let windowHeight = canvas.height = window.innerHeight;
+	    let screenCenter = { x: windowWidth / 2, y: windowHeight / 2 };
 
 	    // particles collection
       let particles = [];
@@ -38,7 +38,7 @@
       	}
       	appear() {
       	  const angle = Math.random() * Math.PI * 2; // angle in the polar coordinate
-      	  const rad = Math.max(screenWidth, screenHeight) * 0.6;
+      	  const rad = Math.max(windowWidth, windowHeight) + 0.9;
       	  this.x = screenCenter.x + Math.cos(angle) * rad; // convert to x: cartesian
           this.y = screenCenter.y + Math.sin(angle) * rad; // convert to y: cartesian
           this.vx = (Math.random() - 0.5) * 0.8; // velocity x
@@ -53,7 +53,7 @@
     	    const dis = Math.sqrt(disSq);
 
     	    // Reset the particle when entering the black hole event horizon
-          const eventHorizon = blackHoleSize + 20;
+          const eventHorizon = blackHoleSize * 1.1;
     	    if (dis < eventHorizon) {
       	    this.appear();
       	    return;
@@ -66,8 +66,8 @@
 
           // slow down to avoid overshooting
           if (dis < blackHoleSize * 3) {
-    	  	this.vx *= 0.97;
-    		  this.vy *= 0.97;
+    	  	this.vx *= 0.9;
+    		  this.vy *= 0.9;
   		    }
 
           // update particle's location
@@ -98,7 +98,7 @@
 
     function explodeTrigger() {
       ctx.fillStyle = "rgba(255,255,255)";
-      ctx.fillRect(0,0,screenWidth,screenHeight); 
+      ctx.fillRect(0,0,windowWidth,windowHeight); 
 
       explosionProgress += 1;
       if (explosionProgress > 100) {
@@ -122,17 +122,22 @@
       } else if (e.key.length === 1) {
         blackHoleSize += 8;
       }
-      if (blackHoleSize > Math.max(screenWidth, screenHeight) * 0.7 && !exploding) {
+      if (blackHoleSize > Math.max(windowWidth, windowHeight) * 0.7 && !exploding) {
         beginExplode();
       }
     }
 
     window.addEventListener("keydown", handleInput);
+    window.addEventListener("resize", () => {
+      windowWidth = canvas.width = window.innerWidth;
+      windowHeight = canvas.height = window.innerHeight;
+      screenCenter = { x: windowWidth / 2, y: windowHeight / 2 };
+    });
 
 	  function animate() {
       if (!exploding) {
-  	  	ctx.fillStyle = "rgba(0,0,0,0.25)"; // slightly transparent to have trails
-    		ctx.fillRect(0, 0, screenWidth, screenHeight);
+  	  	ctx.fillStyle = "rgba(0,0,0,0.1)"; // slightly transparent to have trails
+    		ctx.fillRect(0, 0, windowWidth, windowHeight);
 
   	  	particles.forEach(p => {
       	  p.update();
