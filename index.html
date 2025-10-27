@@ -38,7 +38,7 @@
       	}
       	appear() {
       	  const angle = Math.random() * Math.PI * 2; // angle in the polar coordinate
-      	  const rad = Math.max(windowWidth, windowHeight) + 0.9;
+      	  const rad = Math.max(windowWidth, windowHeight) * (0.5 + Math.random() * 0.6);
       	  this.x = screenCenter.x + Math.cos(angle) * rad; // convert to x: cartesian
           this.y = screenCenter.y + Math.sin(angle) * rad; // convert to y: cartesian
           this.vx = (Math.random() - 0.5) * 0.8; // velocity x
@@ -64,11 +64,20 @@
     	    this.vx += force * (dx / dis);
           this.vy += force * (dy / dis);
 
-          // slow down to avoid overshooting
-          if (dis < blackHoleSize * 3) {
-    	  	this.vx *= 0.9;
-    		  this.vy *= 0.9;
-  		    }
+          // Particles' next fram position
+          const nextX = this.x + this.vx;
+          const nextY = this.y + this.vy;
+
+          // Next frame vectors
+          const new_dx = screenCenter.x - nextX;
+          const new_dy = screenCenter.y - nextY;
+
+          // If the current distance is within the threshold, and the new distance is negative, reset
+          const closeThreshold = blackHoleSize * 3; // How close to be before checking
+          if (dis < closeThreshold && ((dx * new_dx < 0) || (dy * new_dy < 0))) {
+              this.appear();
+              return;
+          }
 
           // update particle's location
       	  this.x += this.vx;
@@ -132,6 +141,7 @@
       windowWidth = canvas.width = window.innerWidth;
       windowHeight = canvas.height = window.innerHeight;
       screenCenter = { x: windowWidth / 2, y: windowHeight / 2 };
+
     });
 
 	  function animate() {
