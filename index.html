@@ -52,9 +52,8 @@
     	    const disSq = dx * dx + dy * dy;
     	    const dis = Math.sqrt(disSq);
 
-    	    // Reset the particle when entering the black hole event horizon
-          const eventHorizon = blackHoleSize * 1.1;
-    	    if (dis < eventHorizon) {
+    	    // Reset the particle when entering the black hole
+    	    if (dis < blackHoleSize) {
       	    this.appear();
       	    return;
       	  }
@@ -64,22 +63,9 @@
     	    this.vx += force * (dx / dis);
           this.vy += force * (dy / dis);
 
-          // Particles' next fram position
-          const nextX = this.x + this.vx;
-          const nextY = this.y + this.vy;
+          this.vx *= 0.992;
+          this.vy *= 0.992;
 
-          // Next frame vectors
-          const new_dx = screenCenter.x - nextX;
-          const new_dy = screenCenter.y - nextY;
-
-          // If the current distance is within the threshold, and the new distance is negative, reset
-          const closeThreshold = blackHoleSize * 3; // How close to be before checking
-          if (dis < closeThreshold && ((dx * new_dx < 0) || (dy * new_dy < 0))) {
-              this.appear();
-              return;
-          }
-
-          // update particle's location
       	  this.x += this.vx;
           this.y += this.vy; 
       	}
@@ -97,6 +83,10 @@
 	    ctx.arc(screenCenter.x, screenCenter.y, blackHoleSize, 0, Math.PI * 2);
 	    ctx.fillStyle = "black";
       ctx.fill();
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.4)';
+      ctx.shadowBlur = 20;
+      ctx.stroke();
+      ctx.shadowColor = 'transparent';
 	  }
 
     function beginExplode() {
@@ -141,7 +131,6 @@
       windowWidth = canvas.width = window.innerWidth;
       windowHeight = canvas.height = window.innerHeight;
       screenCenter = { x: windowWidth / 2, y: windowHeight / 2 };
-
     });
 
 	  function animate() {
