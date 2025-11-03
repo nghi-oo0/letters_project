@@ -38,6 +38,12 @@
       let ringSpeed = 5; // Pixels per frame
       let ringWidth = 15; // Width of the consuming ring
 
+      // Properties for explosion
+      const roseImg = new Image();
+      roseImg.src = "rose.png";
+      let roses = [];
+      let roseCount = 30;
+
       // Particle class
       class Particle {
       	constructor(x, y) {
@@ -135,11 +141,29 @@
       exploding = true;
       allowInput = false;
       window.removeEventListener("keydown", handleInput);
+
+      // Roses positions
+      roses = [];
+      for (let i = 0; i < roseCount; i++) {
+        roses.push({
+          x: Math.random() * windowWidth,
+          y: Math.random() * windowHeight,
+          angle: Math.random() * Math.PI * 2,
+          size: 100 + Math.random() * 40,
+        });
+      }
+
     }
 
     function explodeTrigger() {
       ctx.fillStyle = "rgba(255,255,255)";
       ctx.fillRect(0,0,windowWidth,windowHeight); 
+
+      roses.forEach(rose => {
+        const shakeX = rose.x + (Math.random() - 0.5) * 20;
+        const shakeY = rose.y + (Math.random() - 0.5) * 20;
+        ctx.drawImage(roseImg, shakeX, shakeY, rose.size, rose.size);
+      });
 
       explosionProgress += 1;
       if (explosionProgress > 100) {
@@ -235,7 +259,6 @@
     });
 
 	  function animate() {
-      blackHoleSize *= 0.9995;
       if (blackHoleSize > Math.max(windowWidth, windowHeight) * 0.7 && !exploding) {
         beginExplode();
       }
