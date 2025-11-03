@@ -87,7 +87,8 @@
     	    // Delete when consumed by blackhole
     	    if (dis < blackHoleSize) {
       	    this.life = 0;
-            blackHoleSize += 0.07 * Math.log(this.size + 1)
+            const growthFactor = 0.002 * this.size;
+            blackHoleSize *= 1 + growthFactor;
       	    return;
       	  }
 
@@ -156,7 +157,7 @@
     }
 
     function explodeTrigger() {
-      ctx.fillStyle = "rgba(255,255,255)";
+      ctx.fillStyle = "rgba(255,255,255,0.15)";
       ctx.fillRect(0,0,windowWidth,windowHeight); 
 
       roses.forEach(rose => {
@@ -188,35 +189,62 @@
       ctx.stroke();
     }
 
-    function createA() {
-      const size = 60;
-      const margin = 100;
-      const x = margin + Math.random() * (windowWidth - margin * 2);
-      const y = margin + Math.random() * (windowHeight - margin * 2);
-      const particleCount = 8;
+    const charShape = {
+      A: [[{x:-0.3,y:0.5},{x:0,y:-0.5}], [{x:0,y:-0.5},{x:0.3,y:0.5}], [{x:-0.15,y:0},{x:0.15,y:0}]],
+      B: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:-0.5},{x:0.15,y:-0.35}], [{x:0.15,y:-0.35},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.15,y:0.35}], [{x:0.15,y:0.35},{x:-0.3,y:0.5}]],
+      C: [[{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}]],
+      D: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:-0.5},{x:0.2,y:0}], [{x:0.2,y:0},{x:-0.3,y:0.5}]],
+      E: [[{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0},{x:0.1,y:0}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}]],
+      F: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0},{x:0.1,y:0}], [{x:-0.3,y:-0.5},{x:0.3,y:-0.5}]],
+      G: [[{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}], [{x:0,y:0},{x:0.3,y:0.5}]],
+      H: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}], [{x:-0.3,y:0},{x:0.3,y:0}]],
+      I: [[{x:-0.2,y:-0.5},{x:0.2,y:-0.5}], [{x:0,y:-0.5},{x:0,y:0.5}], [{x:-0.2,y:0.5},{x:0.2,y:0.5}]],
+      J: [[{x:0.2,y:-0.5},{x:0.2,y:0.3}], [{x:0.2,y:0.3},{x:0,y:0.5}], [{x:0,y:0.5},{x:-0.2,y:0.3}]],
+      K: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0},{x:0.3,y:-0.5}], [{x:-0.3,y:0},{x:0.3,y:0.5}]],
+      L: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}]],
+      M: [[{x:-0.3,y:0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:0,y:0}], [{x:0,y:0},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}]],
+      N: [[{x:-0.3,y:0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:0.3,y:-0.5}]],
+      O: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:-0.3,y:-0.5}]],
+      P: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:-0.5},{x:0.2,y:-0.5}], [{x:0.2,y:-0.5},{x:0.2,y:0}], [{x:0.2,y:0},{x:-0.3,y:0}]],
+      Q: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:-0.3,y:-0.5}], [{x:0,y:0},{x:0.3,y:0.5}]],
+      R: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:-0.5},{x:0.2,y:-0.5}], [{x:0.2,y:-0.5},{x:0.2,y:0}], [{x:0.2,y:0},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0.5}]],
+      S: [[{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0}], [{x:0.3,y:0},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:-0.3,y:0.5}]],
+      T: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0,y:-0.5},{x:0,y:0.5}]],
+      U: [[{x:-0.3,y:-0.5},{x:-0.3,y:0.3}], [{x:-0.3,y:0.3},{x:0.3,y:0.3}], [{x:0.3,y:-0.5},{x:0.3,y:0.3}]],
+      V: [[{x:-0.3,y:-0.5},{x:0,y:0.5}], [{x:0,y:0.5},{x:0.3,y:-0.5}]],
+      W: [[{x:-0.3,y:-0.5},{x:-0.15,y:0.5}], [{x:-0.15,y:0.5},{x:0.15,y:-0.5}], [{x:0.15,y:-0.5},{x:0.3,y:0.5}]],
+      X: [[{x:-0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:-0.5},{x:-0.3,y:0.5}]],
+      Y: [[{x:-0.3,y:-0.5},{x:0,y:0}], [{x:0.3,y:-0.5},{x:0,y:0}], [{x:0,y:0},{x:0,y:0.5}]],
+      Z: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}]],
+      1: [[{x:0,y:-0.5},{x:0,y:0.5}]],
+      2: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0}], [{x:0.3,y:0},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}]],
+      3: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0.5}]],
+      4: [[{x:-0.3,y:-0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}]],
+      5: [[{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0}], [{x:0.3,y:0},{x:0.3,y:0.5}],  [{x:0.3,y:0.5},{x:-0.3,y:0.5}]],
+      6: [[{x:0.3,y:-0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:0.3,y:0}],  [{x:0.3,y:0},{x:-0.3,y:0}]],
+      7: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:-0.1,y:0.5}]],
+      8: [[{x:-0.3,y:-0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:0.3,y:0.5}], [{x:0.3,y:0.5},{x:-0.3,y:0.5}], [{x:-0.3,y:0.5},{x:-0.3,y:-0.5}],  [{x:-0.3,y:0},{x:0.3,y:0}]],
+      9: [[{x:0.3,y:0.5},{x:0.3,y:-0.5}], [{x:0.3,y:-0.5},{x:-0.3,y:-0.5}], [{x:-0.3,y:-0.5},{x:-0.3,y:0}], [{x:-0.3,y:0},{x:0.3,y:0}]]
+    };
 
-      const top = { x: x, y: y - size / 2 };
-      const bottomLeft = { x: x - size / 3, y: y + size / 2 };
-      const bottomRight = { x: x + size / 3, y: y + size / 2 };
-      const crossLeft = { x: x - size / 6, y: y };
-      const crossRight = { x: x + size / 6, y: y };
-
-      function spawnParticlesOnLine(p1, p2, count) {
-        for (let i = 0; i < count; i++) {
-          const t = count <= 1 ? 0.5 : i / (count - 1);
-          const px = p1.x + (p2.x - p1.x) * t;
-          const py = p1.y + (p2.y - p1.y) * t;
+    function spawnLineParticles(linePoints, x, y, size=60, particlesPerLine=8) {
+      linePoints.forEach(([p1, p2]) => {
+        const start = {x: x + p1.x*size, y: y + p1.y*size};
+        const end = {x: x + p2.x*size, y: y + p2.y*size};
+        for (let i=0; i<particlesPerLine; i++) {
+          const t = particlesPerLine <=1 ? 0.5 : i/(particlesPerLine-1);
+          const px = start.x + (end.x - start.x) * t;
+          const py = start.y + (end.y - start.y) * t;
           particles.push(new Particle(px, py));
         }
-      }
-      spawnParticlesOnLine(top, bottomLeft, particleCount);
-      spawnParticlesOnLine(top, bottomRight, particleCount);
-      spawnParticlesOnLine(crossLeft, crossRight, Math.floor(particleCount / 2));
+      });
     }
 
-    // Input handling setup
-    const shapeGen = {
-      A: createA,
+    function createChar(char) {
+      const upper = char.toUpperCase();
+      const x = 100 + Math.random()*(windowWidth-200);
+      const y = 100 + Math.random()*(windowHeight-200);
+      if(charShape[upper]) spawnLineParticles(charShape[upper], x, y, 60);
     }
 
     const keyActions = new Map([
@@ -235,20 +263,9 @@
     // Key handling
     function handleInput(e) {
       const key = e.key.toUpperCase();
-
-      const specialAction = keyActions.get(key);
-      if (specialAction) {
-        specialAction();
-      }
-
-      else if (shapeGen[key]) {
-        shapeGen[key]();
-      }
-
-      else if (key.length === 1) {
-        blackHoleSize *= 1.15;
-      }
-
+      if(keyActions.get(key)) keyActions.get(key)();
+      else if(key.length === 1) createChar(key);
+      else blackHoleSize *= 1.15;
     }
 
     window.addEventListener("keydown", handleInput);
