@@ -38,6 +38,9 @@
       let ringSpeed = 5; // Pixels per frame
       let ringWidth = 15; // Width of the consuming ring
 
+      // Pausing setup for input 'P'
+      let paused = false;
+
       // Properties for explosion
       const roseImg = new Image();
       roseImg.src = "rose.png";
@@ -87,7 +90,7 @@
     	    // Delete when consumed by blackhole
     	    if (dis < blackHoleSize) {
       	    this.life = 0;
-            const growthFactor = 0.002 * this.size;
+            const growthFactor = 0.0002 * this.size;
             blackHoleSize *= 1 + growthFactor;
       	    return;
       	  }
@@ -251,12 +254,20 @@
       ['BACKSPACE', () => blackHoleSize = Math.max(20, blackHoleSize - 8)],
       ['O', activateRing],
       ['0', activateRing],
+      ['P', togglePause],
     ])
 
     function activateRing() {
       if (!isRingActive) { 
         isRingActive = true;
         ringRadius = blackHoleSize + ringWidth / 2;
+      }
+    }
+
+    function togglePause() {
+      paused = !paused;
+      if (!paused) {
+        animate();
       }
     }
 
@@ -276,6 +287,8 @@
     });
 
 	  function animate() {
+      if (paused) return;
+      
       if (blackHoleSize > Math.max(windowWidth, windowHeight) * 0.7 && !exploding) {
         beginExplode();
       }
